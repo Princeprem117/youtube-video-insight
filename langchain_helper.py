@@ -4,6 +4,7 @@ from langchain.agents import create_agent
 from langchain_core.tools import tool
 
 from dotenv import load_dotenv
+import wikipedia
 import os
 
 load_dotenv()
@@ -42,21 +43,45 @@ def generate_pet_name(animal_type, pet_color):
 
 
 @tool
+def wikipedia_search(query: str) -> str:
+    """Search Wikipedia and return information about a topic."""
+
+    try:
+        search_results = wikipedia.search(query)
+
+        if not search_results:
+            return "No Wikipedia results found."
+
+        page = wikipedia.page(search_results[0], auto_suggest=False)
+
+        return page.summary
+
+    except Exception as e:
+        return f"Wikipedia search error: {e}"
+
+
+@tool
 def calculator(expression: str) -> str:
     """Calculate a mathematical expression."""
+
     try:
         result = eval(expression, {"__builtins__": {}}, {})
         return str(result)
+
     except Exception as e:
-        return f"Error calculating expression: {e}"
+        return f"Calculator error: {e}"
 
 
 def langchain_agent():
+
     llm = get_llm()
 
     agent = create_agent(
         model=llm,
-        tools=[calculator],
+        tools=[
+            wikipedia_search,
+            calculator,
+        ],
     )
 
     result = agent.invoke({
@@ -64,8 +89,9 @@ def langchain_agent():
             {
                 "role": "user",
                 "content": (
-                    "A horse has an average age of 20 years. "
-                    "Use the calculator tool to multiply 20 by 3."
+                    "Find the average lifespan of a horse using Wikipedia. "
+                    "Then multiply that number by 3 using the calculator tool. "
+                    "Tell me the lifespan you found and the final result."
                 ),
             }
         ]
@@ -76,4 +102,5 @@ def langchain_agent():
 
 if __name__ == "__main__":
     langchain_agent()
+
     # print(generate_pet_name("horse", "white"))
