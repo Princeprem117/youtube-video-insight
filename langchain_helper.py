@@ -2,7 +2,6 @@ from langchain_community.document_loaders import YoutubeLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import ChatOpenAI , OpenAIEmbeddings
 from langchain_core.prompts import PromptTemplate
-from langchain_classic.chains import LLMChain
 from langchain_community.vectorstores import FAISS
 
 from dotenv import load_dotenv
@@ -54,18 +53,22 @@ def get_response_from_query(db , query, k=4):
         """,
     )
 
-    chain = LLMChain(llm=llm, prompt=prompt)
+    chain = prompt | llm
 
-    response = chain.run(
-        question=query,docs=docs_page_content)
-    
+    result = chain.invoke({
+        "question": query,
+        "docs": docs_page_content
+    })
+
+    response = result.content
+
     return response.strip()
 
 db = create_vectordb_from_yt_url(video_url)
 
 response = get_response_from_query(
     db,
-    "ఈ వీడియోలో ఏమి వివరించారు? తెలుగులో వివరించండి."
+    "give the summary in simple and easy to understand way"
 )
 
 print(response)
