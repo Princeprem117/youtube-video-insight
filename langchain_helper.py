@@ -63,12 +63,3 @@ def get_response_from_query(db , query, k=4):
     response = result.content
 
     return response.strip()
-
-db = create_vectordb_from_yt_url(video_url)
-
-response = get_response_from_query(
-    db,
-    "give the summary in simple and easy to understand way"
-)
-
-print(response)
