@@ -16,6 +16,7 @@ with st.sidebar:
             key = "query"
         )
 
+
         submit_button = st.form_submit_button(label="Submit")
 
 if query and youtube_url:
