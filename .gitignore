@@ -1,4 +1,5 @@
 .yt/
 __pycache__/
-*.pyc
 .env
+*.pyc
+.streamlit/secrets.toml
